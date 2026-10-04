@@ -15,7 +15,7 @@
           <p class="eyebrow">PDF-derived exploratory map</p>
           <h1>Existential Puzzle Mapper</h1>
         </section>
-        <nav class="view-tabs" aria-label="Primary views">
+        <nav class="view-tabs" role="tablist" aria-label="Primary views">
           <button class="tab is-active" type="button" data-view="map" aria-controls="mapView" aria-selected="true">Map</button>
           <button class="tab" type="button" data-view="project" aria-controls="projectView" aria-selected="false">Project</button>
           <button class="tab" type="button" data-view="scenarios" aria-controls="scenariosView" aria-selected="false">Scenarios</button>
@@ -49,10 +49,12 @@
           </section>
 
           <section class="control-section">
-            <div class="section-title">Add Piece</div>
+            <div id="pieceFormTitle" class="section-title">Add Piece</div>
             <form id="pieceForm" class="piece-form">
-              <input id="pieceTitle" type="text" maxlength="60" placeholder="piece name">
-              <textarea id="pieceSummary" maxlength="360" placeholder="what this piece may explain"></textarea>
+              <label class="field-label" for="pieceTitle">Piece name</label>
+              <input id="pieceTitle" type="text" maxlength="60" placeholder="piece name" required>
+              <label class="field-label" for="pieceSummary">Summary</label>
+              <textarea id="pieceSummary" maxlength="360" placeholder="what this piece may explain" required></textarea>
               <select id="pieceType" aria-label="Piece type">
                 <option value="custom">custom</option>
                 <option value="puzzle">puzzle</option>
@@ -60,8 +62,29 @@
                 <option value="outcome">outcome</option>
                 <option value="risk">risk</option>
               </select>
-              <button type="submit">Attach to selected</button>
+              <button id="savePiece" type="submit">Attach to selected</button>
+              <button id="cancelPieceEdit" type="button" hidden>Cancel edit</button>
             </form>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">Connect Pieces</div>
+            <form id="connectionForm" class="piece-form">
+              <p class="microcopy">Connect the selected piece to another piece.</p>
+              <label class="field-label" for="connectionTarget">Target piece</label>
+              <select id="connectionTarget" required></select>
+              <label class="field-label" for="connectionLabel">Relationship</label>
+              <input id="connectionLabel" maxlength="100" value="relates to" required>
+              <button type="submit">Add connection</button>
+            </form>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">Saved Map</div>
+            <p class="microcopy">JSON import replaces this map. The previous map is kept for recovery. PDF and text files remain separate.</p>
+            <button id="restorePrevious" type="button">Restore previous save</button>
+            <button id="resetMap" type="button">Restore original map</button>
+            <p id="mapStatus" class="microcopy save-status" role="status" aria-live="polite"></p>
           </section>
         </aside>
 
@@ -75,13 +98,24 @@
                 <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
                 <button id="zoomReset" type="button">100%</button>
                 <button id="fitMap" type="button">Fit Map</button>
-                <button id="toggleMotionTrace" type="button" aria-pressed="false">Motion Trace</button>
                 <button id="resetView" type="button">Reset Layout</button>
                 <button id="exportMap" type="button">Export JSON</button>
+                <button id="importMap" type="button">Import JSON</button>
+                <input id="importFile" type="file" accept=".json,application/json" hidden>
               </div>
             </div>
             <div class="graph-frame">
-              <svg id="graphSvg" role="img" aria-label="Exploratory relationship map"></svg>
+              <svg id="graphSvg" role="group" aria-label="Exploratory relationship map"></svg>
+              <details class="ring-legend">
+                <summary>Rings</summary>
+                <ol aria-label="Provenance rings, inside out">
+                  <li>Source signal</li>
+                  <li>Source puzzle and barriers</li>
+                  <li class="is-lens">Reference lenses</li>
+                  <li>Moves, outcomes, and risks</li>
+                  <li>Added pieces</li>
+                </ol>
+              </details>
             </div>
             <div class="pan-controls" aria-label="Map pan controls">
               <label for="panX">Pan X</label>
@@ -175,6 +209,7 @@
     </main>
 
     <script src="./data.js"></script>
+    <script src="./map-core.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

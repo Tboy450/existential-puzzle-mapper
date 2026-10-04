@@ -132,10 +132,10 @@ window.MAP_DATA = {
           not: "Not a prescribed sequence."
         },
         {
-          term: "Motion trace",
-          definition: "An optional line showing how far a node moved during the frozen force-layout pass.",
-          usedFor: "Inspecting the old responsive movement without letting it keep shifting the map.",
-          not: "Not a live relation, proof of correlation, or source claim."
+          term: "Provenance ring",
+          definition: "The map's circular layout: the core signal sits in the centre, then source puzzles and barriers, then reference lenses, then moves, outcomes, and risks, with added pieces outermost.",
+          usedFor: "Making distance from the centre mean distance from the PDF source, while pieces within a ring sit near what they connect to.",
+          not: "Not a ranking of importance, a required sequence, or a single final structure."
         },
         {
           term: "Layer",
@@ -155,8 +155,8 @@ window.MAP_DATA = {
       category: "Metrics",
       terms: [
         {
-          term: "Fit percent",
-          definition: "A current estimate of how strongly a pattern or answer-vector fits the existing map.",
+          term: "Map fit",
+          definition: "An editorial rating of how closely a pattern or answer-vector connects to the existing map: unassessed, tentative, moderate, or strong.",
           usedFor: "Ranking what currently stands out.",
           not: "Not proof, probability, revelation, or empirical confidence."
         },
@@ -164,19 +164,13 @@ window.MAP_DATA = {
           term: "Entry count",
           definition: "The number of actual future observations logged for a pattern.",
           usedFor: "Separating evidence collected later from current map-fit estimates.",
-          not: "Not the same as fit percent."
+          not: "Not the same as editorial map fit."
         },
         {
           term: "Map links",
           definition: "The number of existing graph nodes a pattern directly touches.",
           usedFor: "Showing how much of the current map a pattern connects to.",
           not: "Not evidence that the pattern is true."
-        },
-        {
-          term: "Layout pressure",
-          definition: "The distance a node moved from its deterministic seed position while the layout was being settled.",
-          usedFor: "Preserving force-layout movement as a diagnostic after the visible map is frozen.",
-          not: "Not proof of causality, probability, or hidden external influence."
         },
         {
           term: "Answer signal",
@@ -1153,8 +1147,8 @@ window.MAP_DATA = {
       definition: "These sets are scaffolds for later observation and can be merged, discarded, or renamed."
     },
     {
-      term: "Fit percent",
-      definition: "A current map-fit estimate based on source anchors and graph relations. It is not proof and should move as entries accumulate."
+      term: "Map fit",
+      definition: "Editorial categories: Unassessed = no assigned rationale; Tentative = a possible connection needing examples; Moderate = several relevant connections with open gaps; Strong = direct connections across several central concepts. These categories describe conceptual relevance, not measured confidence or probability."
     },
     {
       term: "Entry count",
@@ -1168,7 +1162,7 @@ window.MAP_DATA = {
       family: "transmission",
       status: "ready to collect",
       metrics: {
-        fit: 84,
+        fitLabel: "Strong",
         entries: 0,
         mapLinks: 4,
         basis: "Strong match to signal, reset, seed, and anomaly tracking."
@@ -1192,7 +1186,7 @@ window.MAP_DATA = {
       family: "social attention",
       status: "future test",
       metrics: {
-        fit: 76,
+        fitLabel: "Moderate",
         entries: 0,
         mapLinks: 4,
         basis: "Good fit to classification pressure, attention failure, channel noise, and shared protocol."
@@ -1216,7 +1210,7 @@ window.MAP_DATA = {
       family: "logic",
       status: "ready to collect",
       metrics: {
-        fit: 90,
+        fitLabel: "Strong",
         entries: 0,
         mapLinks: 4,
         basis: "Currently the strongest fit: dichotomy, third stance, remainder, and non-invertible barrier all depend on held tension."
@@ -1240,7 +1234,7 @@ window.MAP_DATA = {
       family: "state change",
       status: "future test",
       metrics: {
-        fit: 63,
+        fitLabel: "Tentative",
         entries: 0,
         mapLinks: 4,
         basis: "Plausible but less demonstrated; needs time-based observations before it should rank higher."
@@ -1264,7 +1258,7 @@ window.MAP_DATA = {
       family: "apophatic",
       status: "ready to collect",
       metrics: {
-        fit: 78,
+        fitLabel: "Moderate",
         entries: 0,
         mapLinks: 4,
         basis: "Fits apophatic remainder and map-suspicion, but needs examples of accurate non-naming."
@@ -1288,7 +1282,7 @@ window.MAP_DATA = {
       family: "recursion",
       status: "future test",
       metrics: {
-        fit: 81,
+        fitLabel: "Strong",
         entries: 0,
         mapLinks: 4,
         basis: "Strong current fit to repeated fallback into several basins: monomyth, closed-loop paralysis, and counter-mythology."
@@ -1320,7 +1314,7 @@ window.MAP_DATA = {
       family: "comparison",
       status: "future test",
       metrics: {
-        fit: 58,
+        fitLabel: "Tentative",
         entries: 0,
         mapLinks: 4,
         basis: "Useful future method, but it requires repeated wording samples that are not yet collected."
@@ -1344,7 +1338,7 @@ window.MAP_DATA = {
       family: "decision space",
       status: "ready to collect",
       metrics: {
-        fit: 86,
+        fitLabel: "Strong",
         entries: 0,
         mapLinks: 4,
         basis: "Very strong fit to the misleading dichotomy and the search for non-binary next vectors."
@@ -1388,12 +1382,12 @@ window.MAP_DATA = {
     rule: "Keep entries small and comparable. Record disconfirming details with the same care as confirming ones."
   },
   answerSignals: {
-    note: "These are answer-vectors, not final answers. Percentages are current map-fit estimates; entries remain zero until concrete pattern observations are logged.",
+    note: "These are provisional answer-vectors. Map fit is an editorial judgment of conceptual relevance: Tentative needs examples, Moderate has relevant connections with open gaps, and Strong connects several central concepts directly. Every vector currently has zero logged observations; its evidence remains uncollected.",
     vectors: [
       {
         id: "answer_third_stance",
         title: "The answer may be a disciplined third stance",
-        fit: 88,
+        fitLabel: "Strong",
         entries: 0,
         linkedPatterns: 3,
         claim: "The immediate answer is not a rival worldview but a stable method for refusing the false choice between the old structure and formlessness.",
@@ -1404,7 +1398,7 @@ window.MAP_DATA = {
       {
         id: "answer_transmission",
         title: "The answer may be a transmission protocol",
-        fit: 82,
+        fitLabel: "Strong",
         entries: 0,
         linkedPatterns: 2,
         claim: "A major part of the puzzle may be solved by designing better channels: smaller pieces, cleaner terms, listener feedback, and error correction.",
@@ -1415,7 +1409,7 @@ window.MAP_DATA = {
       {
         id: "answer_pattern_method",
         title: "The answer may emerge from pattern collection",
-        fit: 79,
+        fitLabel: "Moderate",
         entries: 0,
         linkedPatterns: 4,
         claim: "The project may need to collect non-standard patterns before any single answer becomes visible.",
@@ -1426,7 +1420,7 @@ window.MAP_DATA = {
       {
         id: "answer_constructive_field",
         title: "The answer may require a constructed field",
-        fit: 73,
+        fitLabel: "Moderate",
         entries: 0,
         linkedPatterns: 2,
         claim: "The missing piece may be a collaborative field or artifact that can hold attention longer than an ordinary conversation.",
@@ -1437,7 +1431,7 @@ window.MAP_DATA = {
       {
         id: "answer_apophatic_limit",
         title: "The answer may involve disciplined non-naming",
-        fit: 76,
+        fitLabel: "Moderate",
         entries: 0,
         linkedPatterns: 2,
         claim: "Some of the answer may be preserved by mapping boundaries, absences, and distortions rather than asserting a full positive theory.",

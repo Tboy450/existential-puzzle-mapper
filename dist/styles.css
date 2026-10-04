@@ -45,11 +45,30 @@ button {
 button:hover,
 button:focus-visible {
   border-color: var(--blue);
-  outline: none;
 }
 
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+[hidden] { display: none !important; }
+
+.piece-form .field-label { margin: 0; }
+.save-status { margin-top: 12px; }
+.save-status.is-error { color: var(--rust); }
+.custom-actions, .connection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.interactive-card { cursor: pointer; }
+.interactive-card:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
+.node:focus-visible circle { stroke: var(--blue); stroke-width: 5px; }
+.fit-rating { color: var(--blue); font-weight: 800; }
+
+#patternLabView.is-active { overflow: auto; }
+#patternLabView .pattern-grid { max-height: none; overflow: visible; }
+
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr;
 }
@@ -327,29 +346,46 @@ button:focus-visible {
   stroke-width: 2.5;
 }
 
-.motion-traces {
-  pointer-events: none;
-}
-
-.motion-trace {
-  stroke: rgba(166, 111, 31, 0.26);
-  stroke-width: 1.25;
-  stroke-dasharray: 7 7;
-}
-
-.motion-trace.is-selected {
-  stroke: rgba(163, 71, 55, 0.68);
-  stroke-width: 2.5;
-}
-
-.motion-origin {
-  fill: rgba(166, 111, 31, 0.28);
-  stroke: #fffdf8;
+.ring-guide {
+  fill: none;
+  stroke: rgba(31, 41, 51, 0.14);
   stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
 }
 
-.motion-origin.is-selected {
-  fill: rgba(163, 71, 55, 0.72);
+.ring-guide.is-lens {
+  stroke-dasharray: 6 6;
+}
+
+.ring-legend {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 10px;
+  background: rgba(255, 253, 248, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: rgba(31, 41, 51, 0.75);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.ring-legend summary {
+  cursor: pointer;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.ring-legend ol {
+  margin: 4px 0 2px;
+  padding-left: 18px;
+}
+
+.ring-legend .is-lens::after {
+  content: " (dashed)";
+  font-weight: 500;
 }
 
 .node {
@@ -378,7 +414,11 @@ button:focus-visible {
 }
 
 .node.is-muted {
-  opacity: 0.2;
+  opacity: 0.5;
+}
+
+.node.is-muted text {
+  fill: var(--muted, #5f6b66);
 }
 
 .node.is-selected circle {
@@ -584,10 +624,6 @@ button:focus-visible {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 800;
-}
-
-.pressure-readout strong {
-  font-size: 1.15rem;
 }
 
 .project-layout {
@@ -862,6 +898,7 @@ button:focus-visible {
 @media (max-width: 1040px) {
   .workspace {
     grid-template-columns: 250px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .right-panel {
@@ -873,6 +910,11 @@ button:focus-visible {
 }
 
 @media (max-width: 760px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
   .topbar {
     align-items: start;
     flex-direction: column;
@@ -880,6 +922,11 @@ button:focus-visible {
 
   .workspace {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .main-panel {
+    order: -1;
   }
 
   .left-panel,
