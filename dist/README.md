@@ -14,6 +14,31 @@ The "Pattern Lab" tab is a future-facing workbench for non-standard pattern sets
 
 The "Term Key" tab defines the project's vocabulary and mapping technology with plain descriptions, intended use, and what each term should not be confused with.
 
+## Simulation workbench
+
+Open **Simulations** (or the site's `#simulations` link). Start with **Mixed access**, leave the seed fixed, and run the comparison. The four policies use the same synthetic worlds:
+
+- **Standard journey:** a call, departure, evidence gathering, checked gain, and return/share, with prerequisites enforced. Matches are calibration, not discoveries.
+- **Interchangeable roles:** investigate or check before committing to the call; the ordering is not required.
+- **Reciprocal inquiry:** favor peer evidence exchange, without requiring a hero's departure or ranked permission for exchanges.
+- **Unordered control:** choose among available actions without narrative prerequisites. This is still a policy, not a model-free explanation.
+
+Insight/gnosis placement is a working part of the process: **call** introduces an initial, possibly wrong claim; **trial** proposes one after the first clue; **boon** waits for all three clues. The standard policy still waits for all clues before checking; other policies can check earlier. Changing placement changes available evidence and actions, not only labels.
+
+Each world contains a synthetic solution among eight candidates and three truthful binary clues. Investigations, access requests, exchanges, checks, and sharing spend actions. Rejected claims are removed without establishing their opposite. A verified private gain and a successfully shared outcome are counted separately. The on-screen rules document the deliberately simple probabilities and assumptions.
+
+Results show counts and denominators for a narrow monomyth-like sequence, an actual two-level access-request chain, their overlap, and neither. Conditional rates compare hierarchy **inside and outside** the sequence signature, using the appropriate group denominator. Other detectors look for distributed evidence leading to a shared gain, a gain before a later call, and successful revision after rejection. Detectors link to numbered trace events. Partial or budget-exhausted journeys are outside the complete sequence signature, not automatically alternative ideologies. An access chain is not a detector of Gnostic belief or cosmological truth.
+
+Use **open vs. gated access** to compare polarized conditions while holding the other settings fixed. Inspect both successes and unfinished cases, examine paired differences against the standard policy, change one setting, and repeat with another seed. The experiment is a way to develop and question processes, not a simulation of the entire philosophical puzzle or proof of a worldview. There is no AI-generated narrative, private-data input, network request, or empirical prevalence estimate in the simulator.
+Policy comparisons change several rules together; identifying a single causal mechanism needs a further controlled comparison.
+
+The last completed recipe is saved separately under `existential-puzzle-simulation-v1`. **Export experiment** includes the engine version, recipe, definitions, aggregate counts, and paired outcomes. **Import & replay** validates the recipe and recomputes all traces and counts rather than trusting reported results. Map JSON and experiment JSON are distinct formats. Editing controls marks the current results as stale until rerun.
+An unreadable saved recipe is left untouched on startup and copied to `existential-puzzle-simulation-v1-damaged` before a new run replaces it. Storage failures remain visible and do not prevent exporting the completed comparison.
+
+**Add this comparison to map** creates an explicitly synthetic custom piece linked to Pattern Lab (or the selected piece in an imported map). It includes the recipe and selected policy, participates in normal map save/export/recovery, and never increments the Pattern Lab's real-observation counts. Results are not posted to GitHub or shared with anyone automatically.
+
+Engine and detector behavior are versioned in `simulation-core.js` and covered by `tests/simulation.test.cjs`. Changing simulation rules requires a new engine version before accepting old recipes as reproducible.
+
 Pattern and answer-vector fit uses an editorial scale: Unassessed, Tentative, Moderate, or Strong. The Pattern Lab and Term Key explain the rubric. These categories describe conceptual relevance; all bundled candidates have zero logged observations. The lab currently provides collection prompts and a schema; observation entry is future work.
 
 The map supports content-aware Fit Map, extended zoom, wheel/trackpad panning, two-finger touch pan/pinch on the graph, and dynamic Pan X / Pan Y sliders matched to the graph contents. Fit Map can zoom below 12% when needed to show a wide layout on a small screen. Card actions center and zoom into their mapped piece for readable inspection without changing its stored coordinates.
@@ -27,6 +52,8 @@ Files:
 - `data.js` - PDF-derived map data, objectives, scenarios, source anchors, and separated references
 - `app.js` - graph, inspector, scenario, objective, next-step, export, and local custom-piece behavior
 - `map-core.js` - shared model validation, routing, storage recovery, and snapshot helpers
+- `simulation-core.js` - seeded synthetic event engine, role policies, detectors, and comparisons
+- `simulation-ui.js` - experiment controls, evidence inspection, separate persistence, replay, and map integration
 - `Note 123.pdf` - source PDF downloaded from the Quick Share link
 - `note_123_extracted.txt` - raw text extracted from the PDF
 

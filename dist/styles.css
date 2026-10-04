@@ -242,6 +242,95 @@ button:focus-visible {
   display: block;
 }
 
+.workspace.is-simulating {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.workspace.is-simulating > .left-panel,
+.workspace.is-simulating > .right-panel {
+  display: none;
+}
+
+#simulationsView.is-active {
+  overflow: auto;
+}
+
+.simulation-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 18px 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.simulation-boundary {
+  margin: 0;
+  padding: 14px;
+  background: #edf3f5;
+  border-left: 4px solid var(--blue);
+  line-height: 1.55;
+}
+
+.simulation-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffefa;
+  line-height: 1.5;
+}
+
+.simulation-card h3 { margin: 0 0 10px; }
+.simulation-card h3:not(:first-child) { margin-top: 24px; }
+.simulation-card h4 { margin: 16px 0 8px; }
+.simulation-card summary { cursor: pointer; font-weight: 750; }
+.simulation-card details { margin: 12px 0; }
+.simulation-card button { min-height: 44px; }
+.simulation-card button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.simulation-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  min-width: 0;
+  padding: 0;
+  margin: 0 0 14px;
+  border: 0;
+}
+
+.simulation-fields legend { padding: 0 0 14px; font-weight: 800; }
+.simulation-fields label { display: grid; gap: 6px; font-size: 0.9rem; font-weight: 650; min-width: 0; }
+.simulation-fields input,
+.simulation-fields select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.simulation-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+#simulationRun { background: var(--ink); color: var(--paper); }
+#simulationResults { display: grid; gap: 16px; min-width: 0; }
+.simulation-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+.simulation-table-wrap table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+.simulation-table-wrap th,
+.simulation-table-wrap td { border-bottom: 1px solid var(--line); padding: 10px; }
+.simulation-table-wrap td { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.simulation-table-wrap thead { background: #edf3f5; }
+.simulation-table-wrap th[scope="row"] { min-width: 180px; font-weight: 650; }
+.simulation-table-wrap button { text-align: left; width: 100%; }
+.simulation-timeline { list-style: none; padding: 0; display: grid; gap: 10px; }
+.simulation-timeline li { border-left: 3px solid var(--line); padding: 10px 12px; background: #f8f6f0; }
+.simulation-timeline li.is-evidence { border-color: var(--blue); }
+.simulation-timeline p { margin: 6px 0 0; }
+.simulation-timeline .tag { margin: 4px 0 0 6px; }
+#simulationTrace { overflow-wrap: anywhere; }
+
 #mapView.is-active {
   display: grid;
   grid-template-rows: auto minmax(320px, 1fr) auto;
@@ -910,6 +999,43 @@ button:focus-visible {
 }
 
 @media (max-width: 760px) {
+  #simulationsView.is-active {
+    height: auto;
+    overflow: visible;
+  }
+
+  .simulation-content { padding: 0 10px 20px; }
+  .simulation-card { padding: 12px; }
+  .simulation-fields { grid-template-columns: minmax(0, 1fr); }
+  .simulation-table-wrap table,
+  .simulation-table-wrap tbody { display: block; }
+  .simulation-table-wrap thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .simulation-table-wrap tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-bottom: 2px solid var(--line);
+  }
+  .simulation-table-wrap th[scope="row"] {
+    grid-column: 1 / -1;
+    min-width: 0;
+    background: #edf3f5;
+  }
+  .simulation-table-wrap td { white-space: normal; }
+  .simulation-table-wrap td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
   .app-shell {
     height: auto;
     min-height: 100vh;

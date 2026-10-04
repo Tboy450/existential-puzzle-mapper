@@ -46,6 +46,7 @@
       map: document.getElementById("mapView"),
       project: document.getElementById("projectView"),
       scenarios: document.getElementById("scenariosView"),
+      simulations: document.getElementById("simulationsView"),
       objectives: document.getElementById("objectivesView"),
       nextSteps: document.getElementById("nextStepsView"),
       patternLab: document.getElementById("patternLabView"),
@@ -181,6 +182,7 @@
 
   function switchView(viewName) {
     state.activeView = viewName;
+    document.querySelector(".workspace").classList.toggle("is-simulating", viewName === "simulations");
     els.tabs.forEach((tab) => {
       const isActive = tab.dataset.view === viewName;
       tab.classList.toggle("is-active", isActive);
@@ -641,6 +643,13 @@
     }
     if (references.length) {
       els.inspector.appendChild(blockList("Separate Reference Lenses", references.map((ref) => ref.title), "reference-tag"));
+    }
+    if (["monomyth", "gatekeepers", "pattern_lab", "pressure_test", "next_question"].includes(node.id)) {
+      const simulate = document.createElement("button");
+      simulate.type = "button";
+      simulate.textContent = "Compare synthetic scenarios";
+      simulate.addEventListener("click", () => switchView("simulations"));
+      els.inspector.appendChild(simulate);
     }
     if (state.customNodeIds.includes(node.id)) {
       const actions = document.createElement("div");
@@ -1200,33 +1209,34 @@
       renderAll();
       return;
     }
-    if (state.nodes.length >= 250) { showStatus("This map has reached its 250-piece limit.", true); return; }
+    try {
+      insertCustomPiece({ label: title, summary, type, domain: "user", source: ["user-added"],
+        questions: ["What does this piece connect or clarify?"] });
+    } catch (error) { showStatus(error.message, true); }
+  }
+
+  function insertCustomPiece(piece, anchorId = state.selectedId) {
+    if (state.nodes.length >= 250) throw new Error("This map has reached its 250-piece limit.");
     const id = `custom_${crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`}`;
     const node = {
       id,
-      label: title,
-      type,
-      domain: "user",
       weight: 5,
-      summary,
-      source: ["user-added"],
-      questions: ["What does this piece connect or clarify?"]
+      ...piece
     };
     const edge = {
-      from: state.selectedId || "signal",
+      from: anchorId,
       to: id,
       label: "receives added piece",
       kind: "custom",
       strength: 2
     };
     const next = { ...data, nodes: data.nodes.concat(node), edges: data.edges.concat(edge) };
-    try { core.validateModel(next); }
-    catch (error) { showStatus(error.message, true); return; }
+    core.validateModel(next);
     const layout = currentLayout();
     rememberPrevious();
     data = next;
     state.customNodeIds.push(id);
-    state.activeTypes.add(type);
+    state.activeTypes.add(piece.type);
     hydrateState(layout);
     state.selectedId = id;
     state.search = "";
@@ -1235,6 +1245,7 @@
     renderFilters();
     persist("Piece added and saved.");
     renderAll();
+    return id;
   }
 
   function resetPositions() {
@@ -1454,4 +1465,20 @@
   switchView("map");
   applySnapshot(restored);
   showStatus(restored.warning || "Changes save in this browser. Export JSON for a portable backup.", Boolean(restored.warning));
+  window.SimulationWorkbench.mount({
+    escapeHtml,
+    openView: switchView,
+    openMapNode(id) {
+      if (!nodeById(id)) return false;
+      selectNode(id, true);
+      return true;
+    },
+    addFinding(finding) {
+      const type = data.types.includes("process") ? "process" : data.types[0];
+      const id = insertCustomPiece({ ...finding, type, domain: "simulation", source: ["user-added", "synthetic"] },
+        nodeById("pattern_lab") ? "pattern_lab" : state.selectedId);
+      selectNode(id, true);
+    }
+  });
+  if (location.hash === "#simulations") switchView("simulations");
 })();

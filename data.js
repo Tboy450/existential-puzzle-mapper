@@ -27,6 +27,10 @@ window.MAP_DATA = {
         role: "Branching explanations that preserve different assumptions and risks."
       },
       {
+        title: "Simulations",
+        role: "Reproducible synthetic comparisons of a monomyth baseline, interchangeable roles, reciprocal inquiry, and an unordered control. Model-conditioned results remain separate from source claims and real observations."
+      },
+      {
         title: "Objectives",
         role: "Possible outcomes such as preserving the data, improving transmission, finding a field, or building an artifact."
       },
@@ -75,6 +79,29 @@ window.MAP_DATA = {
     ]
   },
   termKey: [
+    {
+      category: "Simulation Workbench",
+      terms: [
+        {
+          term: "Synthetic occurrence rate",
+          definition: "The number of generated cases matching a stated detector, divided by the number of cases in that comparison group.",
+          usedFor: "Comparing repeatable model outputs, including hierarchy rates inside and outside a defined monomyth sequence.",
+          not: "Not real-world prevalence, a confidence score, evidence of a cosmology, or the map's editorial fit rating."
+        },
+        {
+          term: "Operational role",
+          definition: "Call, trial, and boon have explicit event functions in the simulator. Insight can activate inquiry, be tested during it, or be proposed after evidence gathering.",
+          usedFor: "Testing changes in timing, prerequisites, and consequences, rather than changing names alone.",
+          not: "Not a claim that all undertakings must follow those stages or that a claimed insight is true."
+        },
+        {
+          term: "Paired synthetic case",
+          definition: "The same seeded world is run through each policy, with action-attempt random draws keyed independently of policy.",
+          usedFor: "Finding cases where a changed process changes an outcome under comparable initial conditions.",
+          not: "Not an independent real-world observation. Different policies can take different actions."
+        }
+      ]
+    },
     {
       category: "Project Layers",
       terms: [

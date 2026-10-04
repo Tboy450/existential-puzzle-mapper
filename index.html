@@ -19,6 +19,7 @@
           <button class="tab is-active" type="button" data-view="map" aria-controls="mapView" aria-selected="true">Map</button>
           <button class="tab" type="button" data-view="project" aria-controls="projectView" aria-selected="false">Project</button>
           <button class="tab" type="button" data-view="scenarios" aria-controls="scenariosView" aria-selected="false">Scenarios</button>
+          <button class="tab" type="button" data-view="simulations" aria-controls="simulationsView" aria-selected="false">Simulations</button>
           <button class="tab" type="button" data-view="objectives" aria-controls="objectivesView" aria-selected="false">Objectives</button>
           <button class="tab" type="button" data-view="nextSteps" aria-controls="nextStepsView" aria-selected="false">Next Steps</button>
           <button class="tab" type="button" data-view="patternLab" aria-controls="patternLabView" aria-selected="false">Pattern Lab</button>
@@ -138,8 +139,132 @@
             <div class="list-header">
               <h2>Scenario Branches</h2>
               <p>Alternative directions without forcing one total map.</p>
+              <button type="button" data-open-simulations>Compare synthetic scenarios</button>
             </div>
             <div id="scenarioGrid" class="item-grid"></div>
+          </section>
+
+          <section id="simulationsView" class="view" aria-label="Simulation workbench" hidden>
+            <div class="list-header">
+              <h2>Simulation Workbench</h2>
+              <p>Start with a working monomyth baseline. Change the role of insight, loosen the ordering, and compare alternative processes.</p>
+            </div>
+            <div class="simulation-content">
+              <p class="simulation-boundary"><strong>Synthetic experiments, not evidence about your experience.</strong>
+                No private account is needed or transmitted. These rates describe this rule-based model, not the prevalence or truth of an ideology.
+                Map position and node movement play no part in the results.</p>
+              <details class="simulation-card">
+                <summary>How to use this to develop a process</summary>
+                <ol class="plain-list">
+                  <li>Run the starter comparison, then inspect a successful case and an unfinished case.</li>
+                  <li>Change insight placement, or compare open and gated access. Keep the seed and budget fixed.</li>
+                  <li>Look for patterns that survive a changed condition, not just a better percentage.</li>
+                  <li>Repeat with another seed. Export the recipe or add a clearly labeled synthetic finding to the map.</li>
+                </ol>
+              </details>
+              <form id="simulationForm" class="simulation-card">
+                <fieldset id="simulationFields" class="simulation-fields">
+                  <legend>Experiment recipe</legend>
+                  <label>Starting conditions
+                    <select id="simulationPreset">
+                      <option value="balanced">Mixed access</option>
+                      <option value="restricted">Restricted access</option>
+                      <option value="shared">Distributed support</option>
+                      <option value="friction">Difficult inquiry</option>
+                      <option value="custom">Custom settings</option>
+                    </select>
+                  </label>
+                  <label>Comparison
+                    <select id="simulationComparison">
+                      <option value="roles">Same access / four policies</option>
+                      <option value="access">Open vs. gated / four policies</option>
+                    </select>
+                  </label>
+                  <label>Insight / gnosis placement
+                    <select id="simulationInsight">
+                      <option value="boon">Boon: after all three clues</option>
+                      <option value="call">Call: initial insight claim</option>
+                      <option value="trial">Trial: after the first clue</option>
+                    </select>
+                  </label>
+                  <label>Seed <input id="simulationSeed" type="number" min="0" max="4294967295" step="1" required value="12345"></label>
+                  <label>Cases per policy <input id="simulationRuns" type="number" min="1" max="200" step="1" required value="80"></label>
+                  <label>Actions per case <input id="simulationBudget" type="number" min="8" max="40" step="1" required value="16"></label>
+                  <label>Gated clues (%) <input id="simulationAccess" type="number" min="0" max="100" step="1" required value="50"></label>
+                  <label>Investigation failure (%) <input id="simulationDifficulty" type="number" min="0" max="100" step="1" required value="35"></label>
+                  <label>Cooperation success (%) <input id="simulationCooperation" type="number" min="0" max="100" step="1" required value="65"></label>
+                </fieldset>
+                <p id="simulationAccessNote" class="microcopy">Every policy uses the same synthetic worlds and action-keyed random draws.</p>
+                <div class="simulation-actions">
+                  <button id="simulationRun" type="submit">Run comparison</button>
+                  <button id="simulationExport" type="button" disabled>Export experiment</button>
+                  <button id="simulationImport" type="button">Import &amp; replay</button>
+                  <input id="simulationFile" type="file" accept=".json,application/json" hidden>
+                </div>
+                <p id="simulationStatus" class="save-status" role="status" aria-live="polite">Ready. No simulation has run yet.</p>
+                <p class="microcopy">Only the last completed recipe is saved in this browser. Experiment exports are separate from map exports and reproduce every trace.</p>
+              </form>
+              <details class="simulation-card">
+                <summary>Rules, role definitions, and limits</summary>
+                <p>The synthetic world has eight possible solutions and three truthful binary clues.
+                  Participants do not see the solution. A check compares a claim with the synthetic oracle.
+                  Rejection eliminates only that claim, never establishes its opposite.</p>
+                <p>Every action costs one unit. Calls are noticed with 80% probability.
+                  The access setting controls the fraction of clues requiring permission; half of gated clues require two levels.
+                  Permissions, peer exchanges, and final sharing use the cooperation setting.
+                  Direct investigations use the investigation-failure setting. A peer can supply any missing clue without ranked permission.
+                  These are modeling assumptions, not measured psychological or spiritual probabilities.</p>
+                <p>The standard policy imposes ordering and waits for all clues before checking.
+                  The other policies can check earlier. Directed alternative policies explore another available action 30% of the time;
+                  the unordered control selects uniformly from available actions.
+                  Same seeds pair the worlds and action-attempt draws, not necessarily the actions taken.
+                  Policies change several rules together; attributing a difference to one rule requires a further controlled comparison.</p>
+                <p>Insight-placement labels describe the hypothesis being enacted. Only a successful check counts as a verified boon.
+                  The roles are related through events and their consequences, not independent truth values.</p>
+                <div id="simulationDefinitions"></div>
+                <p><strong>Limits:</strong> this prototype has a known synthetic answer, truthful clues, fixed policies, and no language understanding.
+                  Its signatures cannot determine whether a real narrative is monomythic or a worldview is Gnostic.
+                  Baseline matches are calibration, not spontaneous discoveries. Bounded failures can look like non-matches.
+                  Neither means neither detector matched, not absence of structure. Rates are descriptive counts, not confidence or belief scores.</p>
+              </details>
+              <div id="simulationResults" hidden>
+                <section class="simulation-card">
+                  <h3>Comparative results</h3>
+                  <p id="simulationRecipe" class="microcopy"></p>
+                  <p>Each cell counts matching cases, including failures in the denominator. Signatures may overlap.</p>
+                  <div id="simulationTable" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Occurrence and outcome comparison"></div>
+                  <h3>Hierarchy inside and outside the monomyth signature</h3>
+                  <p>Each rate uses only cases in that column. An empty group is not a zero occurrence rate.</p>
+                  <div id="simulationConditional" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Conditional hierarchy rates"></div>
+                  <p id="simulationProcess"></p>
+                </section>
+                <section class="simulation-card">
+                  <h3>Inspect evidence and counterexamples</h3>
+                  <div class="simulation-fields">
+                    <label>Policy and access <select id="simulationCohort"></select></label>
+                    <label>Case filter
+                      <select id="simulationFilter">
+                        <option value="all">All cases</option>
+                        <option value="inside">Inside monomyth signature</option>
+                        <option value="outside">Outside monomyth signature</option>
+                        <option value="hierarchy">Access hierarchy detected</option>
+                        <option value="neither">Neither signature detected</option>
+                        <option value="shared">Shared outcome achieved</option>
+                        <option value="unfinished">Shared outcome not achieved</option>
+                      </select>
+                    </label>
+                    <label>Case <select id="simulationCase"></select></label>
+                  </div>
+                  <p id="simulationPaired"></p>
+                  <div class="simulation-actions">
+                    <button id="simulationPin" type="button">Add this comparison to map</button>
+                    <button type="button" data-simulation-node="monomyth">Monomyth on map</button>
+                    <button type="button" data-simulation-node="gatekeepers">Hierarchy lens on map</button>
+                  </div>
+                  <div id="simulationTrace"></div>
+                </section>
+              </div>
+            </div>
           </section>
 
           <section id="objectivesView" class="view" aria-label="Objective explorer">
@@ -154,6 +279,7 @@
             <div class="list-header">
               <h2>Suggested Next Steps</h2>
               <p>Different ways to continue the exploration without forcing one final structure.</p>
+              <button type="button" data-open-simulations>Try a synthetic comparison</button>
             </div>
             <div id="nextStepDefinitions" class="definition-strip"></div>
             <div id="nextStepGrid" class="item-grid"></div>
@@ -163,6 +289,8 @@
             <div class="list-header">
               <h2>Pattern Lab</h2>
               <p>Non-standard pattern candidates for future data collection and conceptual mapping.</p>
+              <button type="button" data-open-simulations>Run and inspect simulations</button>
+              <p class="microcopy">Simulated counts are kept separately from the real-observation entry counts below.</p>
             </div>
             <div id="patternDefinitions" class="definition-strip"></div>
             <div id="patternAnswerSignals" class="answer-signal-panel"></div>
@@ -210,6 +338,8 @@
 
     <script src="./data.js"></script>
     <script src="./map-core.js"></script>
+    <script src="./simulation-core.js"></script>
+    <script src="./simulation-ui.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
