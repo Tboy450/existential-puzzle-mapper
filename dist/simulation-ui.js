@@ -11,6 +11,7 @@
     const fields = Object.fromEntries(fieldNames.map((key) => [key, el(key[0].toUpperCase() + key.slice(1))]));
     let result = null, busy = false, dirty = false;
     let study = null, studyError = "";
+    const studyTitle = () => el("LearningEdition").value === "expanded" ? "Expanded study" : "Original study";
     const metricTitles = { shared: "Shared outcome", monomyth: "Monomyth-like", hierarchy: "Hierarchy", both: "Both signatures" };
     const percent = (value) => `${(100 * value).toFixed(1)}%`;
     const errorPoints = (value) => `${(100 * value).toFixed(2)} pp`;
@@ -27,6 +28,7 @@
       el("Export").disabled = busy || dirty || !result;
       el("Pin").disabled = busy || dirty || !result;
       el("LearningReplay").disabled = busy || !study;
+      el("LearningEdition").disabled = busy;
       fields.access.disabled = fields.comparison.value === "access";
       el("AccessNote").textContent = fields.comparison.value === "access"
         ? "Polarized comparison overrides gated clues with 0% and 100%; all other settings stay fixed."
@@ -67,7 +69,8 @@
       const sizes = Object.fromEntries(["train", "validation", "test"].map((split) =>
         [split, study.series.filter((row) => row.split === split).length]));
       el("LearningBody").hidden = false;
-      el("LearningSummary").textContent = `${study.totalEpisodes.toLocaleString()} paired policy runs across ${study.series.length} recipes:
+      el("LearningSummary").classList.remove("is-error");
+      el("LearningSummary").textContent = `${studyTitle()}: ${study.totalEpisodes.toLocaleString()} paired policy runs across ${study.series.length} recipes:
         ${sizes.train} training, ${sizes.validation} validation, and ${sizes.test} test recipes.
         Training and validation repeat each recipe with 3 seeds; test recipes use 5.
         Retained cycle ${study.selectedRound}, depth ${study.depth}, fitted on ${study.model.support} recipes.`;
@@ -75,7 +78,7 @@
         ["Cycle", "New recipes", "Candidate validation error", "Decision"],
         study.rounds.map((round) => [String(round.round), String(round.addedProfiles),
           errorPoints(round.candidateValidation.overall),
-          round.retained ? "Kept this candidate" : `Kept cycle ${round.deployedCandidateRound}; new candidate was worse`]));
+          round.retained ? "Kept this candidate" : `Kept cycle ${round.deployedCandidateRound}; candidate did not improve`]));
       el("LearningErrors").innerHTML = table(
         ["Measurement (all four policies)", "Learned error", "Constant-average error"],
         [["Overall", errorPoints(study.testError.overall), errorPoints(study.baselineError.overall)],
@@ -84,13 +87,72 @@
       const worst = learning.metrics.reduce((a, b) => study.testError.perMetric[a] >= study.testError.perMetric[b] ? a : b);
       el("LearningCaution").textContent = `The largest average test error was for ${metricTitles[worst].toLowerCase()}:
         ${errorPoints(study.testError.perMetric[worst])}. These averages are not error bounds for individual settings.
-        Tests cover nearby variations of six anchors, not every possible combination. Paired runs share worlds and are not independent observations.
+        ${study.edition ? "Tests include a broad grid and fresh local probes, not every possible combination." : "Tests cover nearby variations of six anchors, not every possible combination."}
+        Paired runs share worlds and are not independent observations.
         Only training recipes through cycle ${study.selectedRound} were used in the retained model.`;
+      el("LearningMethod").textContent = study.method;
+      el("LearningLimitations").textContent = study.targetNote;
+      el("LearningBenchmarkSection").hidden = !study.benchmarks;
+      el("LearningBenchmarks").innerHTML = study.benchmarks ? table(
+        ["Fresh test stratum", "Recipes", "Expanded error", "Original error", "Constant error", "Outside original ranges"],
+        study.benchmarks.map((row) => [row.stratum === "local" ? "Local probes" : "Broad grid", String(row.profiles),
+          errorPoints(row.expanded.overall), errorPoints(row.original.overall), errorPoints(row.constant.overall),
+          `${row.outsideOriginalRanges}/${row.profiles}`])) : "";
       renderLearningOptions();
+    }
+    function loadStudy() {
+      try {
+        if (!learning) throw new Error("The learning module did not load.");
+        study = learning.validateStudy(el("LearningEdition").value === "expanded" ? window.SimulationLearningFollowup : window.SimulationLearningStudy);
+        renderLearningStudy();
+      } catch (error) {
+        study = null;
+        studyError = `Learning study unavailable: ${error.message}`;
+        el("LearningSummary").textContent = studyError;
+        el("LearningSummary").classList.add("is-error");
+        el("LearningBody").hidden = true;
+      }
+      if (result) renderForecast();
+      syncControls();
+    }
+    function renderDiagnosis() {
+      try {
+        if (!learning) throw new Error("The learning module did not load.");
+        const followup = learning.validateStudy(window.SimulationLearningFollowup);
+        const diagnosis = followup.diagnosis;
+        el("LearningDiagnosisRounds").innerHTML = table(
+          ["Original cycle", "New call / trial / boon recipes", "Candidate validation error", "Candidate training error", "Retained model on same training"],
+          diagnosis.originalRounds.map((row) => [String(row.round),
+            ["call", "trial", "boon"].map((key) => row.addedByInsight[key]).join(" / "),
+            errorPoints(row.validation.overall), errorPoints(row.candidateTraining.overall), errorPoints(row.retainedOnSameTraining.overall)]));
+        const start = diagnosis.originalRounds[0].validation.perTarget;
+        const end = diagnosis.originalRounds[2].validation.perTarget;
+        const changes = learning.targets.map((target, i) => ({ target, i, delta: end[i] - start[i] }))
+          .sort((a, b) => b.delta - a.delta).slice(0, 4);
+        el("LearningRegressions").innerHTML = table(
+          ["Prediction target", "Cycle 1 error", "Cycle 3 error", "Increase"],
+          changes.map(({ target, i, delta }) => {
+            const [strategy, metric] = target.split(".");
+            return [esc(`${engine.strategies.find((s) => s.id === strategy).title} / ${metricTitles[metric]}`),
+              errorPoints(start[i]), errorPoints(end[i]), errorPoints(delta)];
+          }));
+        el("LearningControls").innerHTML = table(
+          ["Original cycle", "Original residual sampling", "Same recipes, nine seeds", "Spread coverage, matched added runs"],
+          diagnosis.originalRounds.map((row, i) => [String(row.round), errorPoints(row.validation.overall),
+            errorPoints(diagnosis.repeatControls[i].validation.overall),
+            i ? errorPoints(diagnosis.coverageControls[i - 1].validation.overall) : "Original starting set"]));
+        el("LearningDiagnosisStatus").textContent = `${diagnosis.newEpisodes.toLocaleString()} new diagnostic policy runs;
+          ${followup.totalEpisodes.toLocaleString()} expansion runs. Original results remain intact.`;
+        el("LearningDiagnosisBody").hidden = false;
+      } catch (error) {
+        el("LearningDiagnosisStatus").textContent = `Regression review unavailable: ${error.message}`;
+        el("LearningDiagnosisStatus").classList.add("is-error");
+        el("LearningDiagnosisBody").hidden = true;
+      }
     }
     function renderLearningOptions() {
       el("LearningSeries").innerHTML = study.series.map((row, i) => row.split !== el("LearningSplit").value ? "" :
-        `<option value="${i}">${esc(`${row.profile.insight} | gated ${row.profile.access}% | failure ${row.profile.difficulty}% | cooperation ${row.profile.cooperation}% | ${row.profile.budget} actions`)}</option>`).join("");
+        `<option value="${i}">${esc(`${row.stratum ? `${row.stratum} | ` : ""}${row.profile.insight} | gated ${row.profile.access}% | failure ${row.profile.difficulty}% | cooperation ${row.profile.cooperation}% | ${row.profile.budget} actions`)}</option>`).join("");
       renderLearningRepeats(true);
     }
     function renderLearningRepeats(resetSeed = false) {
@@ -102,7 +164,8 @@
       const p = row.profile;
       el("LearningRecipe").textContent = `Insight ${p.insight}; gated clues ${p.access}%; failure ${p.difficulty}%;
         cooperation ${p.cooperation}%; ${p.budget} actions. ${row.seeds.length} seeds, ${row.cases} cases per seed per policy
-        (${row.seeds.length * row.cases} cases per policy in the mean). ${row.split === "train" ? `Collected in cycle ${row.round}.` : ""}`;
+        (${row.seeds.length * row.cases} cases per policy in the mean). ${row.split === "train" ? `Collected in cycle ${row.round}.` : ""}
+        ${row.stratum ? `Fresh ${row.stratum} probe.` : ""}`;
       el("LearningRepeats").innerHTML = table(
         ["Policy", "Repeated mean", "Seed range", "Seed SD", "Selected seed count"],
         engine.strategies.map((strategy, i) => {
@@ -135,7 +198,7 @@
         ${esc([...unsupported].join("; "))}. Direct simulation results remain available above.</p>` : "") +
         (rows.length ? table(["Policy / access", ...learning.metrics.map((key) => metricTitles[key])], rows) : "");
       el("ForecastNote").textContent = `Forecasts use the completed recipe shown above, not unsaved controls.
-        Model from cycle ${study.selectedRound}; unseen-scenario average error ${errorPoints(study.testError.overall)}.
+        ${studyTitle()}, cycle ${study.selectedRound}; unseen-scenario average error ${errorPoints(study.testError.overall)}.
         Numeric coverage: gated clues ${study.ranges.access.join("-")}%, failure ${study.ranges.difficulty.join("-")}%,
         cooperation ${study.ranges.cooperation.join("-")}%, budget ${study.ranges.budget.join("-")}.
         Being within these ranges does not guarantee accuracy for a new combination. The model is specific to this synthetic engine.`;
@@ -274,6 +337,7 @@
       } catch (error) { status(`Export failed: ${error.message}`, true); }
     });
     el("LearningSplit").addEventListener("change", renderLearningOptions);
+    el("LearningEdition").addEventListener("change", loadStudy);
     el("LearningSeries").addEventListener("change", () => renderLearningRepeats(true));
     el("LearningMetric").addEventListener("change", () => renderLearningRepeats());
     el("LearningSeed").addEventListener("change", () => renderLearningRepeats());
@@ -288,7 +352,7 @@
     el("LearningExport").addEventListener("click", () => {
       if (!study) return;
       try {
-        downloadJson(study, `puzzle-learning-study-v${study.version}.json`);
+        downloadJson(study, `puzzle-learning-${study.edition || "original"}-v${study.version}.json`);
         status("Exported the complete synthetic learning study. This is distinct from a map or single-experiment export.");
       } catch (error) { status(`Study export failed: ${error.message}`, true); }
     });
@@ -335,17 +399,8 @@
     document.querySelectorAll("[data-simulation-node]").forEach((button) => button.addEventListener("click", () => {
       if (!openMapNode(button.dataset.simulationNode)) status("That node is not present in this imported map.", true);
     }));
-    try {
-      if (!learning) throw new Error("The learning module did not load.");
-      study = learning.validateStudy(window.SimulationLearningStudy);
-      renderLearningStudy();
-    } catch (error) {
-      study = null;
-      studyError = `Learning study unavailable: ${error.message}`;
-      el("LearningSummary").textContent = studyError;
-      el("LearningSummary").classList.add("is-error");
-      el("LearningBody").hidden = true;
-    }
+    renderDiagnosis();
+    loadStudy();
     setConfig(engine.defaults);
     try {
       const saved = localStorage.getItem(storageKey);

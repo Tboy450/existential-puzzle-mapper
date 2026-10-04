@@ -9,6 +9,8 @@
     "verify": "npm test && npm run check:dist",
     "learn": "node scripts/learn.cjs",
     "learn:check": "node scripts/learn.cjs --check",
+    "learn:followup": "node scripts/learn-followup.cjs",
+    "learn:followup:check": "node scripts/learn-followup.cjs --check",
     "start": "node scripts/serve.cjs"
   }
 }

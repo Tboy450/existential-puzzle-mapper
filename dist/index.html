@@ -228,7 +228,37 @@
                   Neither means neither detector matched, not absence of structure. Rates are descriptive counts, not confidence or belief scores.</p>
               </details>
               <details id="simulationLearningStudy" class="simulation-card">
-                <summary>Learning study: repeated variations and three refinement cycles</summary>
+                <summary>Learning studies: repetitions, regression review, and expanded conditions</summary>
+                <details id="simulationLearningDiagnosis">
+                  <summary>Why did the original later forecasts get worse?</summary>
+                  <p id="simulationLearningDiagnosisStatus" role="status">Loading regression controls...</p>
+                  <div id="simulationLearningDiagnosisBody" hidden>
+                    <p>Worse means higher prediction error, not lower simulated success. The original stored
+                      <code>trainingError</code> measured the retained model, not each rejected candidate.
+                      The reconstruction below distinguishes those two measurements on the same training data.</p>
+                    <div id="simulationLearningDiagnosisRounds" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Reconstructed original candidates"></div>
+                    <h3>Largest target regressions</h3>
+                    <div id="simulationLearningRegressions" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Largest forecast regressions"></div>
+                    <h3>Controlled follow-up on the original validation set</h3>
+                    <div id="simulationLearningControls" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Repeated-seed and coverage controls"></div>
+                    <p>Using nine common training seeds did not remove the later regression. Spreading the same added run count
+                      across anchors and roles reduced it. This supports a coverage and model-capacity trade-off, not a
+                      single proven cause. The controls also change which settings receive attention; they do not isolate
+                      insight imbalance alone. They reuse original validation, not the original test outcomes.</p>
+                    <p><a href="./LEARNING-NOTES.md" download>Download the regression notes and expansion findings</a>.
+                      The full control recipes, seeds and counts are included in the expanded study export.</p>
+                  </div>
+                </details>
+                <div class="simulation-fields">
+                  <label>Study and forecast model
+                    <select id="simulationLearningEdition">
+                      <option value="original">Original: narrow conditions (default)</option>
+                      <option value="expanded">Expanded: broad conditions (experimental)</option>
+                    </select>
+                  </label>
+                </div>
+                <p>Switching studies changes only the displayed study and learned forecast, not your recipe, simulation counts,
+                  or saved map. The original model remains the default; broader coverage was not a universal improvement.</p>
                 <p id="simulationLearningSummary" role="status">Loading the published synthetic learning study...</p>
                 <div id="simulationLearningBody" hidden>
                   <p>A multi-output regression tree learns to forecast shared outcomes, monomyth-like matches, hierarchy matches,
@@ -241,6 +271,18 @@
                     Validation was reused for selection; test recipes and seeds were held apart until the model was frozen.</p>
                   <div id="simulationLearningErrors" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Held-out forecast errors"></div>
                   <p id="simulationLearningCaution"></p>
+                  <details>
+                    <summary>Selected study method and limitations</summary>
+                    <p id="simulationLearningMethod"></p>
+                    <p id="simulationLearningLimitations"></p>
+                  </details>
+                  <section id="simulationLearningBenchmarkSection" hidden>
+                    <h3>Original and expanded models on the same fresh tests</h3>
+                    <p>Compare predictors within each row, not this broader study's overall error with the original study's 2.68-point score.
+                      Outside-range original predictions are extrapolation stress tests only; they remain blocked in the forecast UI.
+                      Both models were fixed before these test outcomes were generated.</p>
+                    <div id="simulationLearningBenchmarks" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Fresh local and broad comparisons"></div>
+                  </section>
                   <h3>Inspect repeated series</h3>
                   <p>Each mean pools the repetitions below. The seed range and standard deviation describe repeat-to-repeat variation,
                     not a confidence interval or independent evidence about the source material.</p>
@@ -270,8 +312,9 @@
                     <button id="simulationLearningExport" type="button">Export full learning study</button>
                   </div>
                   <p class="microcopy">Replay runs the original simulator so you can inspect its trace. Study exports include all repetition counts,
-                    recipes, seeds, model parameters, and source-code hashes. Use <code>npm run learn</code> to repeat all three cycles;
-                    <code>npm run learn:check</code> reproduces and checks the saved study.</p>
+                    recipes, seeds, model parameters, and source-code hashes. Use <code>npm run learn</code> for the original study,
+                    or <code>npm run learn:followup</code> for regression controls and expansion. Append <code>:check</code>
+                    to either command name to reproduce and check its saved artifact.</p>
                 </div>
               </details>
               <div id="simulationResults" hidden>
@@ -395,6 +438,7 @@
     <script src="./simulation-core.js"></script>
     <script src="./learning-core.js"></script>
     <script src="./learning-results.js"></script>
+    <script src="./learning-followup.js"></script>
     <script src="./simulation-ui.js"></script>
     <script src="./app.js"></script>
   </body>

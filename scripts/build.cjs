@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const root = path.resolve(__dirname, "..");
-const files = ["index.html", "styles.css", "data.js", "map-core.js", "simulation-core.js", "learning-core.js", "learning-results.js", "simulation-ui.js", "app.js", "README.md", "Note 123.pdf", "note_123_extracted.txt"];
+const files = ["index.html", "styles.css", "data.js", "map-core.js", "simulation-core.js", "learning-core.js", "learning-results.js", "learning-followup.js", "simulation-ui.js", "app.js", "README.md", "LEARNING-NOTES.md", "Note 123.pdf", "note_123_extracted.txt"];
 const check = process.argv.includes("--check");
 let drift = false;
 if (!check) fs.mkdirSync(path.join(root, "dist"), { recursive: true });

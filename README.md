@@ -55,6 +55,16 @@ Completed experiments also show a separately labeled **Learned forecast versus t
 
 Run `npm run learn` to regenerate the complete deterministic study. `npm run learn:check` reruns all three cycles and compares the artifact exactly. Source hashes and replay samples are checked by the normal tests, so changing the engine, learner, or runner requires regenerating the report. Regenerate `dist` afterward. The app does not train online, upload data, change the saved map, or turn synthetic findings into logged observations.
 
+### Regression review and broader follow-up
+
+The original later-cycle regression is recorded in [LEARNING-NOTES.md](LEARNING-NOTES.md) and the workbench's **Why did the original later forecasts get worse?** panel. Reconstructed candidate errors distinguish them from the retained model's training error. Nine-seed controls keep recipe coverage fixed; matched-run coverage controls spread additions across anchors and insight roles. More repetitions alone did not remove the regression, while spread coverage reduced it. This supports a coverage/model-capacity trade-off, not a uniquely proven cause.
+
+Three additional balanced-grid cycles expand studied access, difficulty and cooperation to 0-100% and budgets to 8-40. They use fresh training, validation and test seeds, exclude all earlier recipes, and freeze selection before generating the new test outcomes. The follow-up adds **1,281,360 policy runs**, including diagnostics. Expansion validation error falls from **8.30 to 7.90 to 7.06 pp**; fresh-test error is **5.26 pp** versus a **19.87 pp** constant baseline.
+
+Broader does not mean universally better: on the same fresh local probes, the original model scores **4.50 pp** versus **8.34 pp** for the expanded model. On the broad grid, the expanded model scores **4.88 pp**; the original's **17.09 pp** is an out-of-range stress test only. The original remains the default. The **Study and forecast model** selector explicitly switches reports and forecasts without changing recipes, simulated counts, or saved maps. Both studies retain seed replay and export. Neither covers every combination accurately; see the same-test comparison and limitations before interpreting a forecast.
+
+`learning-results.js` is preserved, and `learning-followup.js` stores the follow-up separately. Run `npm run learn:followup`, or `npm run learn:followup:check` for exact reproduction. Its export includes diagnostic validation data, nine-seed counts, matched-run control counts, all expansion series, and source hashes. Simulator rules, occurrence detectors, and the underlying learner are unchanged.
+
 Pattern and answer-vector fit uses an editorial scale: Unassessed, Tentative, Moderate, or Strong. The Pattern Lab and Term Key explain the rubric. These categories describe conceptual relevance; all bundled candidates have zero logged observations. The lab currently provides collection prompts and a schema; observation entry is future work.
 
 The map supports content-aware Fit Map, extended zoom, wheel/trackpad panning, two-finger touch pan/pinch on the graph, and dynamic Pan X / Pan Y sliders matched to the graph contents. Fit Map can zoom below 12% when needed to show a wide layout on a small screen. Card actions center and zoom into their mapped piece for readable inspection without changing its stored coordinates.
@@ -73,6 +83,9 @@ Files:
 - `learning-core.js` - regression-tree learner, held-out evaluation, repeated-seed summaries, and range guards
 - `learning-results.js` - generated reproducible study, fitted model, and all aggregate repetition counts
 - `scripts/learn.cjs` - three-cycle synthetic study and deterministic reproduction check
+- `learning-followup.js` - preserved regression controls, expanded study, and fresh same-test comparisons
+- `scripts/learn-followup.cjs` - regression reconstruction and three balanced expansion cycles
+- `LEARNING-NOTES.md` - measured regressions, control results, interpretation limits, and expansion trade-offs
 - `Note 123.pdf` - source PDF downloaded from the Quick Share link
 - `note_123_extracted.txt` - raw text extracted from the PDF
 
@@ -91,6 +104,8 @@ npm start          # http://127.0.0.1:4173
 npm test           # validation, snapshots, routes, storage recovery, lifecycle tests
 npm run learn      # repeat the three-cycle synthetic learning study
 npm run learn:check # reproduce the published study exactly
+npm run learn:followup # diagnose regressions and repeat the broader expansion
+npm run learn:followup:check # reproduce the complete follow-up exactly
 npm run build      # copy the root source files and source documents to dist/
 npm run verify     # tests plus a check that dist/ matches the root sources
 ```
