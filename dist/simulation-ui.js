@@ -2,6 +2,7 @@
   "use strict";
 
   const engine = window.SimulationCore;
+  const learning = window.SimulationLearning;
   const storageKey = "existential-puzzle-simulation-v1";
   const fieldNames = ["seed", "runs", "budget", "access", "difficulty", "cooperation", "insight", "comparison"];
 
@@ -9,6 +10,10 @@
     const el = (name) => document.getElementById(`simulation${name}`);
     const fields = Object.fromEntries(fieldNames.map((key) => [key, el(key[0].toUpperCase() + key.slice(1))]));
     let result = null, busy = false, dirty = false;
+    let study = null, studyError = "";
+    const metricTitles = { shared: "Shared outcome", monomyth: "Monomyth-like", hierarchy: "Hierarchy", both: "Both signatures" };
+    const percent = (value) => `${(100 * value).toFixed(1)}%`;
+    const errorPoints = (value) => `${(100 * value).toFixed(2)} pp`;
     const title = (cohort) => `${engine.strategies.find((s) => s.id === cohort.strategy).title} / ${cohort.access}% gated clues`;
     const rate = (count, total) => total ? `${count}/${total} (${Number((100 * count / total).toFixed(1))}%)` : "Not applicable (0 cases)";
     const status = (message, error = false) => {
@@ -21,6 +26,7 @@
       el("Import").disabled = busy;
       el("Export").disabled = busy || dirty || !result;
       el("Pin").disabled = busy || dirty || !result;
+      el("LearningReplay").disabled = busy || !study;
       fields.access.disabled = fields.comparison.value === "access";
       el("AccessNote").textContent = fields.comparison.value === "access"
         ? "Polarized comparison overrides gated clues with 0% and 100%; all other settings stay fixed."
@@ -45,6 +51,95 @@
     }
     const table = (headers, rows) => `<table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead>
       <tbody>${rows.map((cells) => `<tr>${cells.map((cell, i) => i ? `<td data-label="${esc(headers[i])}">${cell}</td>` : `<th scope="row">${cell}</th>`).join("")}</tr>`).join("")}</tbody></table>`;
+
+    function downloadJson(value, filename) {
+      const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function renderLearningStudy() {
+      const sizes = Object.fromEntries(["train", "validation", "test"].map((split) =>
+        [split, study.series.filter((row) => row.split === split).length]));
+      el("LearningBody").hidden = false;
+      el("LearningSummary").textContent = `${study.totalEpisodes.toLocaleString()} paired policy runs across ${study.series.length} recipes:
+        ${sizes.train} training, ${sizes.validation} validation, and ${sizes.test} test recipes.
+        Training and validation repeat each recipe with 3 seeds; test recipes use 5.
+        Retained cycle ${study.selectedRound}, depth ${study.depth}, fitted on ${study.model.support} recipes.`;
+      el("LearningRounds").innerHTML = table(
+        ["Cycle", "New recipes", "Candidate validation error", "Decision"],
+        study.rounds.map((round) => [String(round.round), String(round.addedProfiles),
+          errorPoints(round.candidateValidation.overall),
+          round.retained ? "Kept this candidate" : `Kept cycle ${round.deployedCandidateRound}; new candidate was worse`]));
+      el("LearningErrors").innerHTML = table(
+        ["Measurement (all four policies)", "Learned error", "Constant-average error"],
+        [["Overall", errorPoints(study.testError.overall), errorPoints(study.baselineError.overall)],
+          ...learning.metrics.map((metric) => [metricTitles[metric],
+            errorPoints(study.testError.perMetric[metric]), errorPoints(study.baselineError.perMetric[metric])])]);
+      const worst = learning.metrics.reduce((a, b) => study.testError.perMetric[a] >= study.testError.perMetric[b] ? a : b);
+      el("LearningCaution").textContent = `The largest average test error was for ${metricTitles[worst].toLowerCase()}:
+        ${errorPoints(study.testError.perMetric[worst])}. These averages are not error bounds for individual settings.
+        Tests cover nearby variations of six anchors, not every possible combination. Paired runs share worlds and are not independent observations.
+        Only training recipes through cycle ${study.selectedRound} were used in the retained model.`;
+      renderLearningOptions();
+    }
+    function renderLearningOptions() {
+      el("LearningSeries").innerHTML = study.series.map((row, i) => row.split !== el("LearningSplit").value ? "" :
+        `<option value="${i}">${esc(`${row.profile.insight} | gated ${row.profile.access}% | failure ${row.profile.difficulty}% | cooperation ${row.profile.cooperation}% | ${row.profile.budget} actions`)}</option>`).join("");
+      renderLearningRepeats(true);
+    }
+    function renderLearningRepeats(resetSeed = false) {
+      const row = study.series[Number(el("LearningSeries").value)];
+      if (resetSeed) el("LearningSeed").innerHTML = row.seeds.map((seed) => `<option value="${seed}">${seed}</option>`).join("");
+      const stats = learning.summarizeSeries(row.counts, row.cases);
+      const metric = learning.metrics.indexOf(el("LearningMetric").value);
+      const seedIndex = row.seeds.indexOf(Number(el("LearningSeed").value));
+      const p = row.profile;
+      el("LearningRecipe").textContent = `Insight ${p.insight}; gated clues ${p.access}%; failure ${p.difficulty}%;
+        cooperation ${p.cooperation}%; ${p.budget} actions. ${row.seeds.length} seeds, ${row.cases} cases per seed per policy
+        (${row.seeds.length * row.cases} cases per policy in the mean). ${row.split === "train" ? `Collected in cycle ${row.round}.` : ""}`;
+      el("LearningRepeats").innerHTML = table(
+        ["Policy", "Repeated mean", "Seed range", "Seed SD", "Selected seed count"],
+        engine.strategies.map((strategy, i) => {
+          const target = i * learning.metrics.length + metric;
+          return [esc(strategy.title), percent(stats.values[target]),
+            `${percent(stats.minimum[target])} to ${percent(stats.maximum[target])}`,
+            errorPoints(stats.sd[target]), esc(rate(row.counts[seedIndex][target], row.cases))];
+        }));
+    }
+    function renderForecast() {
+      if (!study) {
+        el("Forecast").textContent = studyError;
+        el("ForecastNote").textContent = "The original simulator is still available; no learned rates are substituted for its counts.";
+        return;
+      }
+      const unsupported = new Set();
+      const rows = result.cohorts.flatMap((cohort) => {
+        const config = { ...result.config, access: cohort.access };
+        const outside = learning.outsideRange(config, study.ranges);
+        if (outside.length) {
+          for (const key of outside) unsupported.add(`${key}: ${config[key]} (studied ${study.ranges[key].join(" to ")})`);
+          return [];
+        }
+        const prediction = learning.predict(study.model, config);
+        const offset = engine.strategies.findIndex((s) => s.id === cohort.strategy) * learning.metrics.length;
+        return [[esc(title(cohort)), ...learning.metrics.map((metric, i) =>
+          `${percent(prediction.values[offset + i])} forecast<br>${percent(cohort.summary.counts[metric] / cohort.summary.total)} observed`)]];
+      });
+      el("Forecast").innerHTML = (unsupported.size ? `<p class="simulation-notice" role="status">No forecast for unsupported settings:
+        ${esc([...unsupported].join("; "))}. Direct simulation results remain available above.</p>` : "") +
+        (rows.length ? table(["Policy / access", ...learning.metrics.map((key) => metricTitles[key])], rows) : "");
+      el("ForecastNote").textContent = `Forecasts use the completed recipe shown above, not unsaved controls.
+        Model from cycle ${study.selectedRound}; unseen-scenario average error ${errorPoints(study.testError.overall)}.
+        Numeric coverage: gated clues ${study.ranges.access.join("-")}%, failure ${study.ranges.difficulty.join("-")}%,
+        cooperation ${study.ranges.cooperation.join("-")}%, budget ${study.ranges.budget.join("-")}.
+        Being within these ranges does not guarantee accuracy for a new combination. The model is specific to this synthetic engine.`;
+    }
 
     function renderResults() {
       const { config, cohorts } = result;
@@ -72,6 +167,7 @@
         Inspect both kinds of case, change one assumption, and repeat with another seed before treating a difference as stable.`;
       el("Cohort").innerHTML = cohorts.map((c, i) => `<option value="${i}">${esc(title(c))}</option>`).join("");
       el("Filter").value = "all";
+      renderForecast();
       renderCases();
     }
 
@@ -172,16 +268,29 @@
     });
     el("Export").addEventListener("click", () => {
       if (!result || dirty || busy) return;
-      const blob = new Blob([JSON.stringify(engine.exportExperiment(result), null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `puzzle-simulation-${result.config.seed}.json`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      status("Exported the versioned recipe, definitions, counts, and paired comparisons. Import & replay reconstructs every event trace.");
+      try {
+        downloadJson(engine.exportExperiment(result), `puzzle-simulation-${result.config.seed}.json`);
+        status("Exported the versioned recipe, definitions, counts, and paired comparisons. Import & replay reconstructs every event trace.");
+      } catch (error) { status(`Export failed: ${error.message}`, true); }
+    });
+    el("LearningSplit").addEventListener("change", renderLearningOptions);
+    el("LearningSeries").addEventListener("change", () => renderLearningRepeats(true));
+    el("LearningMetric").addEventListener("change", () => renderLearningRepeats());
+    el("LearningSeed").addEventListener("change", () => renderLearningRepeats());
+    el("LearningReplay").addEventListener("click", async () => {
+      if (!study || busy) return;
+      const row = study.series[Number(el("LearningSeries").value)];
+      await runExperiment({ ...engine.defaults, ...row.profile, seed: Number(el("LearningSeed").value), runs: row.cases },
+        "Studied seed replayed. Compare these counts with the selected seed in the learning study.");
+      el("Table").scrollIntoView({ block: "start" });
+      el("Table").focus({ preventScroll: true });
+    });
+    el("LearningExport").addEventListener("click", () => {
+      if (!study) return;
+      try {
+        downloadJson(study, `puzzle-learning-study-v${study.version}.json`);
+        status("Exported the complete synthetic learning study. This is distinct from a map or single-experiment export.");
+      } catch (error) { status(`Study export failed: ${error.message}`, true); }
     });
     el("Import").addEventListener("click", () => el("File").click());
     el("File").addEventListener("change", async () => {
@@ -226,6 +335,17 @@
     document.querySelectorAll("[data-simulation-node]").forEach((button) => button.addEventListener("click", () => {
       if (!openMapNode(button.dataset.simulationNode)) status("That node is not present in this imported map.", true);
     }));
+    try {
+      if (!learning) throw new Error("The learning module did not load.");
+      study = learning.validateStudy(window.SimulationLearningStudy);
+      renderLearningStudy();
+    } catch (error) {
+      study = null;
+      studyError = `Learning study unavailable: ${error.message}`;
+      el("LearningSummary").textContent = studyError;
+      el("LearningSummary").classList.add("is-error");
+      el("LearningBody").hidden = true;
+    }
     setConfig(engine.defaults);
     try {
       const saved = localStorage.getItem(storageKey);

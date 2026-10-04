@@ -28,7 +28,7 @@ window.MAP_DATA = {
       },
       {
         title: "Simulations",
-        role: "Reproducible synthetic comparisons of a monomyth baseline, interchangeable roles, reciprocal inquiry, and an unordered control. Model-conditioned results remain separate from source claims and real observations."
+        role: "Reproducible synthetic comparisons of a monomyth baseline, interchangeable roles, reciprocal inquiry, and an unordered control, with repeated learning studies and separately labeled forecasts. Model-conditioned results remain separate from source claims and real observations."
       },
       {
         title: "Objectives",
@@ -82,6 +82,12 @@ window.MAP_DATA = {
     {
       category: "Simulation Workbench",
       terms: [
+        {
+          term: "Learned forecast",
+          definition: "A regression-tree estimate of the simulator's occurrence or outcome rate for specified conditions, learned from repeated synthetic runs.",
+          usedFor: "Comparing predictions with direct runs, inspecting held-out errors, and identifying where more repetitions or better coverage are needed.",
+          not: "Not an observed count, proof of an ideology, a calibrated confidence interval, or evidence about private experiences. Numeric range coverage does not guarantee accuracy for every combination."
+        },
         {
           term: "Synthetic occurrence rate",
           definition: "The number of generated cases matching a stated detector, divided by the number of cases in that comparison group.",

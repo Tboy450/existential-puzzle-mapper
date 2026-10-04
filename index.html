@@ -227,6 +227,53 @@
                   Baseline matches are calibration, not spontaneous discoveries. Bounded failures can look like non-matches.
                   Neither means neither detector matched, not absence of structure. Rates are descriptive counts, not confidence or belief scores.</p>
               </details>
+              <details id="simulationLearningStudy" class="simulation-card">
+                <summary>Learning study: repeated variations and three refinement cycles</summary>
+                <p id="simulationLearningSummary" role="status">Loading the published synthetic learning study...</p>
+                <div id="simulationLearningBody" hidden>
+                  <p>A multi-output regression tree learns to forecast shared outcomes, monomyth-like matches, hierarchy matches,
+                    and their overlap for all four policies. The simulator and its definitions were not changed to improve the scores.
+                    This is supervised learning from synthetic counts, not learning whether an ideology is true.</p>
+                  <div id="simulationLearningRounds" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Learning cycles"></div>
+                  <h3>Final unseen-scenario evaluation</h3>
+                  <p>Error is the mean absolute difference in percentage points from repeated simulation rates.
+                    The baseline always predicts the training average and ignores scenario conditions.
+                    Validation was reused for selection; test recipes and seeds were held apart until the model was frozen.</p>
+                  <div id="simulationLearningErrors" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Held-out forecast errors"></div>
+                  <p id="simulationLearningCaution"></p>
+                  <h3>Inspect repeated series</h3>
+                  <p>Each mean pools the repetitions below. The seed range and standard deviation describe repeat-to-repeat variation,
+                    not a confidence interval or independent evidence about the source material.</p>
+                  <div class="simulation-fields">
+                    <label>Data split
+                      <select id="simulationLearningSplit">
+                        <option value="test">Test: unseen recipes and seeds</option>
+                        <option value="validation">Validation: used for selection</option>
+                        <option value="train">Training: used for fitting</option>
+                      </select>
+                    </label>
+                    <label>Studied recipe <select id="simulationLearningSeries"></select></label>
+                    <label>Measurement
+                      <select id="simulationLearningMetric">
+                        <option value="monomyth">Monomyth-like occurrence</option>
+                        <option value="hierarchy">Hierarchy occurrence</option>
+                        <option value="both">Both signatures</option>
+                        <option value="shared">Shared outcome</option>
+                      </select>
+                    </label>
+                    <label>Seed to replay <select id="simulationLearningSeed"></select></label>
+                  </div>
+                  <p id="simulationLearningRecipe"></p>
+                  <div id="simulationLearningRepeats" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Repeated seed measurements"></div>
+                  <div class="simulation-actions">
+                    <button id="simulationLearningReplay" type="button">Replay this studied seed</button>
+                    <button id="simulationLearningExport" type="button">Export full learning study</button>
+                  </div>
+                  <p class="microcopy">Replay runs the original simulator so you can inspect its trace. Study exports include all repetition counts,
+                    recipes, seeds, model parameters, and source-code hashes. Use <code>npm run learn</code> to repeat all three cycles;
+                    <code>npm run learn:check</code> reproduces and checks the saved study.</p>
+                </div>
+              </details>
               <div id="simulationResults" hidden>
                 <section class="simulation-card">
                   <h3>Comparative results</h3>
@@ -237,6 +284,13 @@
                   <p>Each rate uses only cases in that column. An empty group is not a zero occurrence rate.</p>
                   <div id="simulationConditional" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Conditional hierarchy rates"></div>
                   <p id="simulationProcess"></p>
+                  <details>
+                    <summary>Learned forecast versus this simulation run</summary>
+                    <p>These are estimates from the frozen learning model, not additional observations.
+                      Observed counts above remain unchanged. A single seed may differ from a repeated mean.</p>
+                    <div id="simulationForecast" class="simulation-table-wrap" tabindex="0" role="region" aria-label="Learned forecast comparison"></div>
+                    <p id="simulationForecastNote" class="microcopy"></p>
+                  </details>
                 </section>
                 <section class="simulation-card">
                   <h3>Inspect evidence and counterexamples</h3>
@@ -339,6 +393,8 @@
     <script src="./data.js"></script>
     <script src="./map-core.js"></script>
     <script src="./simulation-core.js"></script>
+    <script src="./learning-core.js"></script>
+    <script src="./learning-results.js"></script>
     <script src="./simulation-ui.js"></script>
     <script src="./app.js"></script>
   </body>

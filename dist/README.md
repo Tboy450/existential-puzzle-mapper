@@ -39,6 +39,22 @@ An unreadable saved recipe is left untouched on startup and copied to `existenti
 
 Engine and detector behavior are versioned in `simulation-core.js` and covered by `tests/simulation.test.cjs`. Changing simulation rules requires a new engine version before accepting old recipes as reproducible.
 
+### Repeated learning study
+
+Expand **Learning study** in Simulations to inspect three completed learning cycles. A small, dependency-free multi-output regression tree learns 16 rates: shared outcomes, monomyth-like occurrence, hierarchy occurrence, and their overlap for each policy. It uses only access, investigation difficulty, cooperation, budget, and categorical insight placement. Seeds, hidden solutions, traces, private text, and real observations are not prediction features. This is an approximation of the existing synthetic generator, not validation of an ideology.
+
+The study uses six starting anchors (four presets plus open/independent and gated/supportive conditions), all three insight placements, and a budget of 16. Initial training perturbs one numeric setting by 10 percentage points, or budget by 2. Validation uses separate 5-point or 1-action variations. Final tests use combined nearby variations and entirely separate seeds. Repeated training runs use 3 seeds with 40 cases per policy; validation uses 3 with 60; final test uses 5 with 80. Policies share worlds within a seed, so the total is **paired policy runs**, not independent observations.
+
+Each cycle selects among six tree depths using validation mean absolute error. The next two cycles add small variations around the eight largest **training** residuals; they never add validation or test recipes. Validation is reused for selection, and a worse candidate is rejected. Final test outcomes are generated only after selection, with equal weight per recipe and target. The constant-average baseline uses the same training recipes as the retained model. The simulator's rules and occurrence definitions are unchanged, and no target ideology frequency is rewarded.
+
+The published study contains **433 recipes and 281,280 policy runs**: 259 training, 138 validation, and 36 test recipes. Cycle 1's depth-5 model was retained; cycles 2 and 3 worsened validation error rather than improving it. The retained model uses the initial 156 training recipes. Final test error averages **2.68 percentage points**, versus **13.13** for the constant training-mean predictor. Shared-outcome predictions have the largest average error (4.45 points); individual policy/metric comparisons can perform worse than the baseline. Full per-target errors are included in the study export.
+
+Use the study selectors to inspect means, seed ranges, sample standard deviations, and individual seed counts, then **Replay this studied seed** to reproduce its event traces. Seed ranges are descriptive, not confidence intervals. **Export full learning study** saves every recipe, count, seed, model, selection round, and code hash in a separate `puzzle-learning-study` format; it is not a single-experiment import.
+
+Completed experiments also show a separately labeled **Learned forecast versus this simulation run**. Forecasts use the completed recipe (including each cohort's access), never dirty controls, and never replace actual counts. Unsupported settings suppress forecasts while leaving simulations usable. Studied numeric ranges are access 0-100%, difficulty 0-90%, cooperation 20-100%, and budget 14-18; all three insight placements are covered. These bounds do not imply coverage of all combinations. Held-out results test nearby variations under this generator, not broad extrapolation or real-world prevalence.
+
+Run `npm run learn` to regenerate the complete deterministic study. `npm run learn:check` reruns all three cycles and compares the artifact exactly. Source hashes and replay samples are checked by the normal tests, so changing the engine, learner, or runner requires regenerating the report. Regenerate `dist` afterward. The app does not train online, upload data, change the saved map, or turn synthetic findings into logged observations.
+
 Pattern and answer-vector fit uses an editorial scale: Unassessed, Tentative, Moderate, or Strong. The Pattern Lab and Term Key explain the rubric. These categories describe conceptual relevance; all bundled candidates have zero logged observations. The lab currently provides collection prompts and a schema; observation entry is future work.
 
 The map supports content-aware Fit Map, extended zoom, wheel/trackpad panning, two-finger touch pan/pinch on the graph, and dynamic Pan X / Pan Y sliders matched to the graph contents. Fit Map can zoom below 12% when needed to show a wide layout on a small screen. Card actions center and zoom into their mapped piece for readable inspection without changing its stored coordinates.
@@ -54,6 +70,9 @@ Files:
 - `map-core.js` - shared model validation, routing, storage recovery, and snapshot helpers
 - `simulation-core.js` - seeded synthetic event engine, role policies, detectors, and comparisons
 - `simulation-ui.js` - experiment controls, evidence inspection, separate persistence, replay, and map integration
+- `learning-core.js` - regression-tree learner, held-out evaluation, repeated-seed summaries, and range guards
+- `learning-results.js` - generated reproducible study, fitted model, and all aggregate repetition counts
+- `scripts/learn.cjs` - three-cycle synthetic study and deterministic reproduction check
 - `Note 123.pdf` - source PDF downloaded from the Quick Share link
 - `note_123_extracted.txt` - raw text extracted from the PDF
 
@@ -70,6 +89,8 @@ Development requires Node.js 22 or later and no installed packages:
 ```sh
 npm start          # http://127.0.0.1:4173
 npm test           # validation, snapshots, routes, storage recovery, lifecycle tests
+npm run learn      # repeat the three-cycle synthetic learning study
+npm run learn:check # reproduce the published study exactly
 npm run build      # copy the root source files and source documents to dist/
 npm run verify     # tests plus a check that dist/ matches the root sources
 ```

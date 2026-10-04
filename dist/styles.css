@@ -330,6 +330,7 @@ button:focus-visible {
 .simulation-timeline p { margin: 6px 0 0; }
 .simulation-timeline .tag { margin: 4px 0 0 6px; }
 #simulationTrace { overflow-wrap: anywhere; }
+#simulationLearningStudy .microcopy { overflow-wrap: anywhere; }
 
 #mapView.is-active {
   display: grid;
