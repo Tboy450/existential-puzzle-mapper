@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Existential Puzzle Mapper</title>
+    <meta name="description" content="A static exploratory website for mapping existential, philosophical, spiritual, and communication puzzle structures from Note 123.pdf.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231c2422'/%3E%3Ccircle cx='20' cy='24' r='7' fill='%232e6f95'/%3E%3Ccircle cx='44' cy='22' r='6' fill='%23a66f1f'/%3E%3Ccircle cx='34' cy='44' r='8' fill='%235f5c8a'/%3E%3Cpath d='M26 26l12-3M23 30l8 9M40 27l-4 10' stroke='%23fffdf8' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <section class="title-block">
+          <p class="eyebrow">PDF-derived exploratory map</p>
+          <h1>Existential Puzzle Mapper</h1>
+        </section>
+        <nav class="view-tabs" aria-label="Primary views">
+          <button class="tab is-active" type="button" data-view="map" aria-controls="mapView" aria-selected="true">Map</button>
+          <button class="tab" type="button" data-view="project" aria-controls="projectView" aria-selected="false">Project</button>
+          <button class="tab" type="button" data-view="scenarios" aria-controls="scenariosView" aria-selected="false">Scenarios</button>
+          <button class="tab" type="button" data-view="objectives" aria-controls="objectivesView" aria-selected="false">Objectives</button>
+          <button class="tab" type="button" data-view="nextSteps" aria-controls="nextStepsView" aria-selected="false">Next Steps</button>
+          <button class="tab" type="button" data-view="patternLab" aria-controls="patternLabView" aria-selected="false">Pattern Lab</button>
+          <button class="tab" type="button" data-view="termKey" aria-controls="termKeyView" aria-selected="false">Term Key</button>
+          <button class="tab" type="button" data-view="sources" aria-controls="sourcesView" aria-selected="false">Sources</button>
+        </nav>
+      </header>
+
+      <section class="workspace">
+        <aside class="left-panel" aria-label="Map controls">
+          <section class="control-section">
+            <label class="field-label" for="searchInput">Search</label>
+            <input id="searchInput" class="search-input" type="search" placeholder="signal, wilderness, deception">
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">Layers</div>
+            <div id="typeFilters" class="chip-grid"></div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">Source Boundary</div>
+            <div class="boundary-stack">
+              <a class="file-link" href="./Note%20123.pdf">Open PDF</a>
+              <a class="file-link" href="./note_123_extracted.txt">Open extracted text</a>
+              <p class="microcopy">PDF anchors are source material. Reference lenses are optional comparisons and stay separate.</p>
+            </div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">Add Piece</div>
+            <form id="pieceForm" class="piece-form">
+              <input id="pieceTitle" type="text" maxlength="60" placeholder="piece name">
+              <textarea id="pieceSummary" maxlength="360" placeholder="what this piece may explain"></textarea>
+              <select id="pieceType" aria-label="Piece type">
+                <option value="custom">custom</option>
+                <option value="puzzle">puzzle</option>
+                <option value="process">process</option>
+                <option value="outcome">outcome</option>
+                <option value="risk">risk</option>
+              </select>
+              <button type="submit">Attach to selected</button>
+            </form>
+          </section>
+        </aside>
+
+        <section class="main-panel">
+          <section id="mapView" class="view is-active" aria-label="Mapping graph">
+            <div class="graph-toolbar">
+              <div id="mapStats" class="map-stats"></div>
+              <div class="toolbar-actions">
+                <button id="zoomOut" type="button" aria-label="Zoom out">-</button>
+                <span id="zoomLabel" class="zoom-label" aria-live="polite">100%</span>
+                <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+                <button id="zoomReset" type="button">100%</button>
+                <button id="fitMap" type="button">Fit Map</button>
+                <button id="toggleMotionTrace" type="button" aria-pressed="false">Motion Trace</button>
+                <button id="resetView" type="button">Reset Layout</button>
+                <button id="exportMap" type="button">Export JSON</button>
+              </div>
+            </div>
+            <div class="graph-frame">
+              <svg id="graphSvg" role="img" aria-label="Exploratory relationship map"></svg>
+            </div>
+            <div class="pan-controls" aria-label="Map pan controls">
+              <label for="panX">Pan X</label>
+              <input id="panX" type="range" min="-900" max="900" value="0" step="10">
+              <label for="panY">Pan Y</label>
+              <input id="panY" type="range" min="-900" max="900" value="0" step="10">
+              <button id="centerMap" type="button">Fit / Center</button>
+            </div>
+          </section>
+
+          <section id="projectView" class="view" aria-label="Project overview" hidden>
+            <div class="list-header">
+              <h2>Project Overview</h2>
+              <p>A static website for keeping the source, map, options, and next moves cleanly separated.</p>
+            </div>
+            <div id="projectSummary" class="project-layout"></div>
+          </section>
+
+          <section id="scenariosView" class="view" aria-label="Scenario explorer">
+            <div class="list-header">
+              <h2>Scenario Branches</h2>
+              <p>Alternative directions without forcing one total map.</p>
+            </div>
+            <div id="scenarioGrid" class="item-grid"></div>
+          </section>
+
+          <section id="objectivesView" class="view" aria-label="Objective explorer">
+            <div class="list-header">
+              <h2>Objectives and Outcomes</h2>
+              <p>Possible aims, first moves, success signals, and failure modes.</p>
+            </div>
+            <div id="objectiveGrid" class="item-grid"></div>
+          </section>
+
+          <section id="nextStepsView" class="view" aria-label="Suggested next steps">
+            <div class="list-header">
+              <h2>Suggested Next Steps</h2>
+              <p>Different ways to continue the exploration without forcing one final structure.</p>
+            </div>
+            <div id="nextStepDefinitions" class="definition-strip"></div>
+            <div id="nextStepGrid" class="item-grid"></div>
+          </section>
+
+          <section id="patternLabView" class="view" aria-label="Pattern lab" hidden>
+            <div class="list-header">
+              <h2>Pattern Lab</h2>
+              <p>Non-standard pattern candidates for future data collection and conceptual mapping.</p>
+            </div>
+            <div id="patternDefinitions" class="definition-strip"></div>
+            <div id="patternAnswerSignals" class="answer-signal-panel"></div>
+            <div id="patternSetGrid" class="pattern-grid"></div>
+            <div id="patternSchema" class="schema-panel"></div>
+          </section>
+
+          <section id="termKeyView" class="view" aria-label="Technology and terminology key" hidden>
+            <div class="list-header">
+              <h2>Technology / Term Key</h2>
+              <p>Plain definitions for the vocabulary and mapping technology used by this project.</p>
+            </div>
+            <div id="termKeyGrid" class="term-key-grid"></div>
+          </section>
+
+          <section id="sourcesView" class="view" aria-label="Source and reference shelves">
+            <div class="split-view">
+              <section>
+                <div class="list-header">
+                  <h2>PDF Source Anchors</h2>
+                  <p>These are derived from the downloaded PDF and transcript.</p>
+                </div>
+                <div id="sourceAnchors" class="stack-list"></div>
+              </section>
+              <section>
+                <div class="list-header">
+                  <h2>Reference Lenses</h2>
+                  <p>These are separate comparison frameworks, not source claims.</p>
+                </div>
+                <div id="referenceList" class="stack-list"></div>
+              </section>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-panel" aria-label="Inspector">
+          <section id="inspector" class="inspector"></section>
+          <section class="route-box">
+            <div class="section-title">Nearby Routes</div>
+            <div id="routeList" class="route-list"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
