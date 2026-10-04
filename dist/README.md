@@ -1,5 +1,7 @@
 # Existential Puzzle Mapper
 
+Live site: https://tboy450.github.io/existential-puzzle-mapper/ (deployed from `dist/` on every push to `main`).
+
 This folder contains a standalone exploratory mapping program generated from `Note 123.pdf`.
 
 Open `index.html` in a browser. It links to the downloaded PDF and the extracted transcript, then keeps the optional references in a separate "Reference Lenses" section.
