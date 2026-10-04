@@ -14,6 +14,47 @@ The "Pattern Lab" tab is a future-facing workbench for non-standard pattern sets
 
 The "Term Key" tab defines the project's vocabulary and mapping technology with plain descriptions, intended use, and what each term should not be confused with.
 
+## Simulation test progress and findings
+
+**Progress snapshot: 2026-10-04. Further scientific testing is paused at this checkpoint.**
+
+### Progress
+
+The project now has a reproducible process for comparing structures, investigating unexpected results, and preserving competing findings. Six learning cycles plus diagnostic controls account for **1,562,640 recorded simulated policy runs**. These are paired synthetic episodes, not independent observations about the world.
+
+The [live workbench](https://tboy450.github.io/existential-puzzle-mapper/#simulations) supports four policies, call/trial/boon insight placement, repeated-seed comparisons, event-trace replay, separately selectable forecast models, and downloadable results. Original results remain available alongside the expansion.
+
+### Findings
+
+**Structural occurrence and useful outcomes can vary separately.** In the interchangeable-role policy, changing insight placement from boon to trial produced the following averages:
+
+| Measurement | Boon placement | Trial placement |
+|---|---:|---:|
+| Hierarchy occurrence | 62.5% | 22.5% |
+| Shared outcome achieved | 89.2% | 90.8% |
+| Monomyth-like occurrence | 2.5% | 2.5% |
+
+This comparison used three seeds with 40 cases each, holding gated clues at 50%, investigation failure at 35%, cooperation at 65%, and the action budget at 16. Within these rules, substantially different structural behavior accompanied similar outcome rates.
+
+**The later original rounds produced useful information, not simply failure.** Their predictors became less accurate on the original validation cases: average error rose from 2.47 to 2.67 to 3.02 percentage points. Training increasingly emphasized difficult examples and boon placement. Nine-seed controls did not remove that regression; spreading the same added run count across conditions reduced it, with later errors of 2.40 and 2.46 points. This supports a coverage and model-capacity trade-off, without establishing one isolated cause.
+
+**Broader prediction coverage came with reduced local precision.** On the same fresh test cases, mean absolute forecast errors were:
+
+| Test conditions | Original predictor | Expanded predictor |
+|---|---:|---:|
+| Near original conditions | **4.50 points** | 8.34 points |
+| Broad conditions | 17.09 points (extrapolation) | **4.88 points** |
+
+The original predictor was outside its studied ranges on all broad-grid cases. That comparison is an extrapolation diagnostic, not an endorsed forecast. These are errors of the predictors, not scores of the competing ideologies or structural policies.
+
+### Conclusion
+
+**No universal winning structure has been established. The project has demonstrated a process for finding and examining conditional differences.** Different arrangements can produce similar outcomes, and a result that challenges an earlier model can be valuable rather than something to discard.
+
+The original and expanded predictors remain available separately, with the original as the default because it retained better local precision. Retaining that predictor does not establish the original conceptual framework as more correct. The findings concern the stated synthetic rules, not real-world ideological prevalence, and all results are preserved for the next testing phase.
+
+See [LEARNING-NOTES.md](LEARNING-NOTES.md) for the reconstructed errors, control designs, expansion results, and interpretation limits.
+
 ## Simulation workbench
 
 Open **Simulations** (or the site's `#simulations` link). Start with **Mixed access**, leave the seed fixed, and run the comparison. The four policies use the same synthetic worlds:
